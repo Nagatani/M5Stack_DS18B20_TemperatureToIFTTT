@@ -6,8 +6,8 @@
 #include "ClockController.h"
 ClockController cc;
 
-#include "IFTTTWebhooks.h"
-IFTTTWebhooks ift;
+#include "SlackWebhooks.h"
+SlackWebhooks webhook;
 
 #define ONE_WIRE_BUS 2
 
@@ -22,27 +22,20 @@ bool switch_state = false;
 
 void sendWebhooks(double temp, String sw) {
   tm t = cc.getDateTime();
+  String message = "";
   if (t.tm_hour != lastRunHour) {
     // 1時間おきに送信
     lastRunHour = t.tm_hour;
     lastRunMin = t.tm_min;
 
-    ift.sendToIFTTT("water_temp", "水槽温度通知", String(temp), sw);
-  }
-}
+    if (temp > 28) {
+      message = " <!channel>: 高温注意";
+    }
+    if (temp < 25) {
+      message = " <!channel>: 低温注意";
+    }
 
-void sendWebhooks_FanSwitch(bool sw) {
-  if (switch_state != sw && sw == true) {
-    switch_state = sw;
-    ift.sendToIFTTT("water_temp", "水温警告", String(celsius), "OFF -> ON");
-    ift.sendToIFTTT("fan_switch", "", "", "");
-    return;
-  }
-  if (switch_state != sw && sw == false) {
-    switch_state = sw;
-    ift.sendToIFTTT("water_temp", "水温警告", String(celsius), "ON -> OFF");
-    ift.sendToIFTTT("fan_switch_off", "", "", "");
-    return;
+    webhook.sendToSlack("水温: " + String(temp) + " ℃" + message);
   }
 }
 
@@ -114,24 +107,28 @@ void updateTemp(void * pvParameters) {
         M5.Lcd.println(swt);
 
         // Webhooksへ送信
-        sendWebhooks_FanSwitch(sw);
         sendWebhooks(celsius, swt);
 
       }
+    } else {
+      webhook.sendToSlack("温度計が接続されていません。");
+      delay(60 * 60000);
     }
+    
     delay(2000);
   }
 }
 
 void setup() {
   M5.begin();
+  dacWrite(25,0);  //ノイズ対策
   Wire.begin();
   cc = ClockController();
   cc.setupTimeZone();
-  ift = IFTTTWebhooks();
+  webhook = SlackWebhooks();
 
   xTaskCreatePinnedToCore(clockTask, "clockTask", 4096, NULL, 1, NULL, 0);
-  xTaskCreatePinnedToCore(updateTemp, "updateTemp", 4096, NULL, 2, NULL, 0);
+  xTaskCreatePinnedToCore(updateTemp, "updateTemp", 8192, NULL, 2, NULL, 0);
 }
 
 void loop() {
