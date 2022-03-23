@@ -1,0 +1,4 @@
+.DS_Store
+
+# 設定ファイルは.replaceからファイル名を変更すること
+Config.cpp
