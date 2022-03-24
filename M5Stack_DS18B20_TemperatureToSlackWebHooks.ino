@@ -110,9 +110,6 @@ void updateTemp(void * pvParameters) {
         sendWebhooks(celsius, swt);
 
       }
-    } else {
-      webhook.sendToSlack("温度計が接続されていません。");
-      delay(60 * 60000);
     }
     
     delay(2000);
@@ -121,14 +118,14 @@ void updateTemp(void * pvParameters) {
 
 void setup() {
   M5.begin();
-  dacWrite(25,0);  //ノイズ対策
+  dacWrite(25,0);  // ノイズ対策
   Wire.begin();
   cc = ClockController();
   cc.setupTimeZone();
   webhook = SlackWebhooks();
 
-  xTaskCreatePinnedToCore(clockTask, "clockTask", 4096, NULL, 1, NULL, 0);
-  xTaskCreatePinnedToCore(updateTemp, "updateTemp", 8192, NULL, 2, NULL, 0);
+  xTaskCreatePinnedToCore(updateTemp, "updateTemp", 8192, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(clockTask, "clockTask", 4096, NULL, 2, NULL, 1);
 }
 
 void loop() {
