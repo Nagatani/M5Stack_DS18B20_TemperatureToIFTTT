@@ -124,10 +124,10 @@ void setup() {
   cc.setupTimeZone();
   webhook = SlackWebhooks();
 
-  xTaskCreatePinnedToCore(updateTemp, "updateTemp", 8192, NULL, 1, NULL, 0);
-  xTaskCreatePinnedToCore(clockTask, "clockTask", 4096, NULL, 2, NULL, 1);
+  xTaskCreatePinnedToCore(clockTask, "clockTask", 4096, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(updateTemp, "updateTemp", 8192, NULL, 25, NULL, 0);
 }
 
 void loop() {
-  M5.update();
+  // M5.update();
 }
