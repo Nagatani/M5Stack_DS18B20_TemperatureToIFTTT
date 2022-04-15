@@ -1,6 +1,5 @@
 #include "ClockController.h"
-
-#include <time.h>
+#include "time.h"
 #include "config.h"
 #include "WiFiMulti.h"
 
@@ -22,5 +21,5 @@ void ClockController::setupTimeZone(void) {
   }
   
   configTzTime("JST-9", "ntp.nict.jp", "time.google.com", "ntp.jst.mfeed.ad.jp");
-  tm t = getDateTime();
+  // tm t = getDateTime();
 }

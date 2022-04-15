@@ -1,6 +1,6 @@
 #ifndef _ClockController_h_
 #define _ClockController_h_
-#include <time.h>
+#include "time.h"
 
 class ClockController {
   public:
