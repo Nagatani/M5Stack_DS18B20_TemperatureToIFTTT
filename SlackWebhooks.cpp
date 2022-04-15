@@ -1,7 +1,5 @@
 #include "SlackWebhooks.h"
-
-#include <Arduino.h>
-#include <HTTPClient.h>
+#include "HTTPClient.h"
 #include "config.h"
 #include "WiFiMulti.h"
 
