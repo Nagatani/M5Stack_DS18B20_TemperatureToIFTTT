@@ -51,16 +51,27 @@ void clockTask(void * pvParameters) {
     M5.Lcd.setCursor(10, 50);
     M5.Lcd.println(&timeinfo, "     %H:%M");
     M5.Lcd.println();
-    delay(30000);
+    delay(35200);
   }
 }
 
-void updateTemp(void * pvParameters) {
+void setup() {
+  M5.begin();
+  dacWrite(25,0);  // ノイズ対策
+  Wire.begin();
+  cc = ClockController();
+  cc.setupTimeZone();
+  webhook = SlackWebhooks();
 
-  //M5.Lcd.clear();
+  xTaskCreatePinnedToCore(clockTask, "clockTask", 4096, NULL, 1, NULL, 1);
+}
+
+void loop() {
+  M5.update();
+  
   bool sw = false;
   String swt = "";
-
+  
   while (true) {
     M5.Lcd.setTextSize(1);
     M5.Lcd.setCursor(0, 0);
@@ -111,23 +122,6 @@ void updateTemp(void * pvParameters) {
 
       }
     }
-    
-    delay(2000);
+    delay(10000);
   }
-}
-
-void setup() {
-  M5.begin();
-  dacWrite(25,0);  // ノイズ対策
-  Wire.begin();
-  cc = ClockController();
-  cc.setupTimeZone();
-  webhook = SlackWebhooks();
-
-  xTaskCreatePinnedToCore(clockTask, "clockTask", 4096, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(updateTemp, "updateTemp", 8192, NULL, 25, NULL, 0);
-}
-
-void loop() {
-  // M5.update();
 }
