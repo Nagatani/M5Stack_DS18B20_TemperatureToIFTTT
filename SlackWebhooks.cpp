@@ -15,19 +15,20 @@ void SlackWebhooks::sendToSlack(String text) {
   // Serial.print("conecting to wifi.");
   while (wifiMulti.run() != WL_CONNECTED) {
     delay(500);
-    // Serial.print(".");
+    Serial.print(".");
   }
-  // Serial.println("wifi connected!");
+  Serial.println("wifi connected!");
 
   // POST TO Slack Incoming Webhooks
   String json = "{\"text\":\"" + text + "\"}";
-  // Serial.println(json);
+  Serial.println(json);
 
-  http.begin(WEBHOOKS_HOST, 443, WEBHOOKS_TRIGGER_PATH, SLACK_ROOT_CA);
+//  http.begin(WEBHOOKS_HOST, 443, WEBHOOKS_TRIGGER_PATH, SLACK_ROOT_CA);
+  http.begin("192.168.86.101", 5280, "/send2slack");
   http.addHeader("Content-Type", "application/json" );
   http.POST((uint8_t*)json.c_str(), strlen(json.c_str()));
 
   // 送信成功かどうかのチェックはしない
-  // Serial.println("Send Complete. : Slack Incoming WebHooks");
+  Serial.println("Send Complete. : Slack Incoming WebHooks");
 
 }
